@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import { storage } from './storage';
 import { create } from 'zustand';
 import type { Me, TokenPair } from '@zoko/contracts';
 
@@ -26,7 +26,7 @@ export const useSession = create<SessionState>((set) => ({
   user: null,
   hydrate: async () => {
     try {
-      const raw = await SecureStore.getItemAsync(TOKENS_KEY);
+      const raw = await storage.get(TOKENS_KEY);
       const tokens = raw ? (JSON.parse(raw) as StoredTokens) : null;
       set({ tokens, status: tokens ? 'signedIn' : 'signedOut' });
     } catch {
@@ -39,12 +39,12 @@ export const useSession = create<SessionState>((set) => ({
       refresh_token: pair.refresh_token,
       expires_at: Date.now() + pair.expires_in * 1000,
     };
-    await SecureStore.setItemAsync(TOKENS_KEY, JSON.stringify(tokens));
+    await storage.set(TOKENS_KEY, JSON.stringify(tokens));
     set({ tokens, status: 'signedIn' });
   },
   setUser: (user) => set({ user }),
   signOut: async () => {
-    await SecureStore.deleteItemAsync(TOKENS_KEY);
+    await storage.remove(TOKENS_KEY);
     set({ tokens: null, user: null, status: 'signedOut' });
   },
 }));

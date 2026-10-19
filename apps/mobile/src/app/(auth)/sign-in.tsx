@@ -5,10 +5,11 @@ import { Button, Text, TextField } from '@/components/ui';
 import { AuthScaffold, FormError } from '@/features/auth/AuthForm';
 import { describeAuthError, useSignIn } from '@/features/auth/useAuthSubmit';
 import { isValidEmail } from '@/features/auth/validation';
+import { DEMO_MODE } from '@/lib/config';
 
 export default function SignIn() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(DEMO_MODE ? 'demo@zoko.app' : '');
+  const [password, setPassword] = useState(DEMO_MODE ? 'demo-preview' : '');
   const pwRef = useRef<ComponentRef<typeof TextInput>>(null);
   const signIn = useSignIn();
   const { message, fields } = describeAuthError(signIn.error, 'signin');
@@ -20,7 +21,7 @@ export default function SignIn() {
   };
 
   return (
-    <AuthScaffold title="Welcome back" subtitle="Sign in to pick up where you left off.">
+    <AuthScaffold title="Welcome back" subtitle={DEMO_MODE ? 'Preview with demo data. Any email and password work.' : 'Sign in to pick up where you left off.'}>
       <FormError message={message} />
       <TextField
         label="Email"

@@ -11,6 +11,10 @@ import { JetBrainsMono_400Regular } from '@expo-google-fonts/jetbrains-mono';
 import { ThemeProvider, useTheme } from '@/theme';
 import { queryClient } from '@/lib/queryClient';
 import { useSession } from '@/lib/session';
+import { API_BASE_URL, DEMO_MODE } from '@/lib/config';
+import { installDemoApi } from '@/demo/mockApi';
+
+if (DEMO_MODE) installDemoApi(API_BASE_URL);
 
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
 
