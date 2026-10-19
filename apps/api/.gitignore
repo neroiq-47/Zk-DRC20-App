@@ -1,3 +1,3 @@
-storage/
-dist/
+/storage/
+/dist/
 .env
