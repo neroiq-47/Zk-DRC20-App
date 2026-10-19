@@ -1,0 +1,8 @@
+{
+  "_comment": "Development/test fixture for FixtureIndexerAdapter. Token deploy txids are synthetic (sha256 of a label), not real Dogecoin transactions. Never used in production.",
+  "tokens": [
+    { "ticker": "dogi", "deploy_txid": "310d4bf3db6f22dc63e4796663acbd2a34981d314f660a56ce3e9a04548035d7", "decimals": 18, "max_supply": "21000000000000000000000000" },
+    { "ticker": "wow", "deploy_txid": "a51e51334da5ef3b337036ea36c39bc9d6aff73cea92200cd2129440d106e635", "decimals": 8, "max_supply": "100000000000000000" }
+  ],
+  "deterministic": true
+}
