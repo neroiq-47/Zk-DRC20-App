@@ -1,0 +1,16 @@
+ID,Priority,Epic,Story,Scope,Acceptance criteria,Story points
+EP01,P0,Identity,Registration and login,"Email/OIDC login, account verification, session rotation",Auth integration tests; refresh reuse revokes family,5
+EP02,P0,Profiles,Profile and settings,"Handle uniqueness, avatar, privacy, account export/deletion",Ownership and visibility tests,5
+EP03,P0,Social,"Posts, replies, reactions and follows","500 chars, four images, reposts, block enforcement",Cursor pagination and authorization tests,8
+EP04,P0,Feed,Following and discovery feeds,"Cursor feed, safety filtering, deduplication",Stable pagination under concurrent writes,8
+EP05,P0,Media,Photos and video processing,"Presigned upload, scan, transcode, thumbnails, captions",No unscanned media served; retry support,13
+EP06,P0,Messaging,1:1 chat and notification delivery,"Membership checks, websocket delivery, message requests",Unauthorized subscription rejected,8
+EP07,P0,Safety,Moderation and reporting,"Blocks, reports, queue, audit and appeals",Abuse cases and moderator RBAC tests,8
+EP08,P0,Wallet,Wallet connect and proof of ownership,"One-use nonce, expiry, chain/domain binding, wallet capability matrix",Replay and wrong-network tests,8
+EP09,P0,Indexer,DRC-20 balance read model,"Independent adapters, canonical block sync, reorg rollback",Provider disagreement yields disputed status,13
+EP10,P0,Transactions,DRC-20 multi-step transfer,"Prepare, external sign, broadcast, monitor, reconcile",No backend keys; no premature success,21
+EP11,P0,Security,Threat model and hardening,"Rate limits, secrets, logs, penetration tests",Release security gate passed,8
+EP12,P0,Operations,"Deploy, backups and observability","Migrations, dashboards, SLOs, incident playbooks",Recovery drill and rollback demonstrated,8
+EP13,P1,Discovery,Search and trends,"Users/posts/hashtags, moderation-aware ranking",Search visibility tests,8
+EP14,P1,Creator,Creator studio,"Post insights, media library, asset showcase",Analytics consent and access tests,8
+EP15,P2,ZK,Private eligibility credentials,"Issuer trust, circuit, verifier, revocation and nullifier",Independent audit and privacy review,21

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <title>Zoko</title>
+  <rect x="7" y="7" width="146" height="146" rx="38" fill="#146FF4"/>
+  <path d="M52 52 H108 L52 108 H108" stroke="#FFFFFF" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="124" cy="36" r="11" fill="#B79A30"/>
+  <circle cx="126" cy="126" r="6" fill="#5DE0BD"/>
+</svg>

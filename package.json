@@ -1,0 +1,15 @@
+{
+  "name": "zoko",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev:mobile": "pnpm --filter @zoko/mobile start",
+    "dev:api": "pnpm --filter @zoko/api dev",
+    "db:migrate": "pnpm --filter @zoko/api db:migrate",
+    "db:seed": "pnpm --filter @zoko/api db:seed",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
+  }
+}
