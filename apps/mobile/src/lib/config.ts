@@ -10,3 +10,6 @@ function defaultApiUrl(): string {
 
 export const API_BASE_URL = (process.env.EXPO_PUBLIC_API_BASE_URL || defaultApiUrl()).replace(/\/$/, '');
 export const WS_URL = API_BASE_URL.replace(/^http/, 'ws') + '/ws';
+
+// Web preview build with an in-browser demo API (see src/demo). Never set for store builds.
+export const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO === '1';

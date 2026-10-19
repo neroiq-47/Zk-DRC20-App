@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
-import { WS_URL } from '@/lib/config';
+import { DEMO_MODE, WS_URL } from '@/lib/config';
 import { api } from '@/lib/api';
 import { useSession } from '@/lib/session';
 import { applyRealtimeEvent, parseRealtimeEvent } from './applyEvent';
@@ -57,7 +57,7 @@ export function useRealtime() {
         await api('/users/me').catch(() => undefined);
         tokens = useSession.getState().tokens;
       }
-      if (!tokens || disposed || !active) {
+      if (!tokens || disposed || !active || DEMO_MODE) {
         setStatus('closed');
         return;
       }
