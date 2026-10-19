@@ -1,0 +1,1111 @@
+openapi: 3.1.0
+info:
+  title: ZK Social API
+  version: 0.1.0
+  description: Design contract. Wallet signing payloads and DRC-20 semantics require
+    provider-specific validation; not a deployed API.
+servers:
+- url: https://api.example.invalid/api/v1
+  description: Placeholder; configure per environment
+security:
+- bearerAuth: []
+tags:
+- name: Auth
+- name: Social
+- name: Media
+- name: Messaging
+- name: Safety
+- name: Web3
+paths:
+  /auth/register:
+    post:
+      tags:
+      - Auth
+      summary: Register account
+      operationId: post_auth_register
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      security: []
+  /auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Create session
+      operationId: post_auth_login
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      security: []
+  /auth/refresh:
+    post:
+      tags:
+      - Auth
+      summary: Rotate refresh token
+      operationId: post_auth_refresh
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      security: []
+  /users/me:
+    get:
+      tags:
+      - Social
+      summary: Get current user
+      operationId: get_users_me
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+  /users/{handle}:
+    get:
+      tags:
+      - Social
+      summary: Get public profile
+      operationId: get_users_handle
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+      parameters:
+      - name: handle
+        in: path
+        required: true
+        schema:
+          type: string
+  /feed:
+    get:
+      tags:
+      - Social
+      summary: Get following feed
+      operationId: get_feed
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedPage'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+  /posts:
+    post:
+      tags:
+      - Social
+      summary: Create post
+      operationId: post_posts
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePost'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /posts/{id}:
+    get:
+      tags:
+      - Social
+      summary: Read post
+      operationId: get_posts_id
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: &id001
+          type: string
+          format: uuid
+  /media/uploads:
+    post:
+      tags:
+      - Media
+      summary: Initiate media upload
+      operationId: post_media_uploads
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadTicket'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadRequest'
+  /media/{id}/complete:
+    post:
+      tags:
+      - Media
+      summary: Complete upload
+      operationId: post_media_id_complete
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyObject'
+  /conversations:
+    get:
+      tags:
+      - Messaging
+      summary: List conversations
+      operationId: get_conversations
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationPage'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+  /conversations/{id}/messages:
+    post:
+      tags:
+      - Messaging
+      summary: Send message
+      operationId: post_conversations_id_messages
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessage'
+  /notifications:
+    get:
+      tags:
+      - Social
+      summary: List notifications
+      operationId: get_notifications
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPage'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+  /reports:
+    post:
+      tags:
+      - Safety
+      summary: Submit report
+      operationId: post_reports
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportRequest'
+  /wallet/challenges:
+    post:
+      tags:
+      - Web3
+      summary: Create wallet signing challenge
+      operationId: post_wallet_challenges
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletChallenge'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletChallengeRequest'
+  /wallet/connections:
+    post:
+      tags:
+      - Web3
+      summary: Verify wallet signature
+      operationId: post_wallet_connections
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletConnection'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WalletVerifyRequest'
+  /wallet/assets:
+    get:
+      tags:
+      - Web3
+      summary: Read indexed balances
+      operationId: get_wallet_assets
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalancePage'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+  /tokens/{ticker}:
+    get:
+      tags:
+      - Web3
+      summary: Read token metadata
+      operationId: get_tokens_ticker
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+      parameters:
+      - name: ticker
+        in: path
+        required: true
+        schema:
+          type: string
+  /transfers:
+    post:
+      tags:
+      - Web3
+      summary: Create transfer intent
+      operationId: post_transfers
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransfer'
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 8
+          maxLength: 128
+  /transfers/{id}:
+    get:
+      tags:
+      - Web3
+      summary: Read transfer status
+      operationId: get_transfers_id
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+  /transfers/{id}/prepare:
+    post:
+      tags:
+      - Web3
+      summary: Prepare next signing step
+      operationId: post_transfers_id_prepare
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SigningStep'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyObject'
+  /transfers/{id}/signed:
+    post:
+      tags:
+      - Web3
+      summary: Submit signed step for validation
+      operationId: post_transfers_id_signed
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignedStep'
+  /transfers/{id}/broadcast:
+    post:
+      tags:
+      - Web3
+      summary: Broadcast validated signed step
+      operationId: post_transfers_id_broadcast
+      responses:
+        '400':
+          description: Validation error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthenticated
+        '403':
+          description: Forbidden
+        '429':
+          description: Rate limited
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmptyObject'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    EmptyObject:
+      type: object
+      properties: {}
+    User:
+      type: object
+      properties:
+        id: *id001
+        handle:
+          type: string
+        display_name:
+          type: string
+        bio:
+          type: string
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 12
+        handle:
+          type: string
+      required:
+      - email
+      - password
+      - handle
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+      - email
+      - password
+    RefreshRequest:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+      required:
+      - refresh_token
+    TokenPair:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+      required:
+      - access_token
+      - refresh_token
+      - expires_in
+    CreatePost:
+      type: object
+      properties:
+        body:
+          type: string
+          maxLength: 500
+        visibility:
+          type: string
+          enum:
+          - public
+          - followers
+        media_ids:
+          type: array
+          items: *id001
+          maxItems: 4
+        parent_id: *id001
+      required:
+      - body
+    Post:
+      type: object
+      properties:
+        id: *id001
+        author_id: *id001
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        visibility:
+          type: string
+      required:
+      - id
+      - author_id
+      - body
+    FeedPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        next_cursor:
+          type: string
+    UploadRequest:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum:
+          - image
+          - video
+        mime_type:
+          type: string
+        byte_size:
+          type: integer
+      required:
+      - kind
+      - mime_type
+      - byte_size
+    UploadTicket:
+      type: object
+      properties:
+        media_id: *id001
+        upload_url:
+          type: string
+          format: uri
+        expires_at:
+          type: string
+          format: date-time
+    Media:
+      type: object
+      properties:
+        id: *id001
+        processing_state:
+          type: string
+        playback_url:
+          type: string
+          format: uri
+    SendMessage:
+      type: object
+      properties:
+        body:
+          type: string
+          maxLength: 4000
+      required:
+      - body
+    Message:
+      type: object
+      properties:
+        id: *id001
+        conversation_id: *id001
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    ConversationPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id: *id001
+        next_cursor:
+          type: string
+    NotificationPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id: *id001
+              kind:
+                type: string
+        next_cursor:
+          type: string
+    ReportRequest:
+      type: object
+      properties:
+        target_kind:
+          type: string
+          enum:
+          - user
+          - post
+          - message
+        target_id: *id001
+        reason:
+          type: string
+      required:
+      - target_kind
+      - target_id
+      - reason
+    Report:
+      type: object
+      properties:
+        id: *id001
+        status:
+          type: string
+    WalletChallengeRequest:
+      type: object
+      properties:
+        address:
+          type: string
+        provider:
+          type: string
+      required:
+      - address
+      - provider
+    WalletChallenge:
+      type: object
+      properties:
+        challenge_id: *id001
+        message:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+      required:
+      - challenge_id
+      - message
+    WalletVerifyRequest:
+      type: object
+      properties:
+        challenge_id: *id001
+        signature:
+          type: string
+        provider:
+          type: string
+      required:
+      - challenge_id
+      - signature
+      - provider
+    WalletConnection:
+      type: object
+      properties:
+        id: *id001
+        address:
+          type: string
+        verified_at:
+          type: string
+          format: date-time
+    BalancePage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              ticker:
+                type: string
+              amount_base_units:
+                type: string
+                pattern: ^[0-9]+$
+              status:
+                type: string
+                enum:
+                - unverified
+                - pending
+                - confirmed
+                - disputed
+              indexed_height:
+                type: integer
+    Token:
+      type: object
+      properties:
+        ticker:
+          type: string
+        decimals:
+          type: integer
+        deploy_txid:
+          type: string
+    CreateTransfer:
+      type: object
+      properties:
+        wallet_id: *id001
+        token_id: *id001
+        recipient_address:
+          type: string
+        amount_base_units:
+          type: string
+          pattern: ^[1-9][0-9]*$
+      required:
+      - wallet_id
+      - token_id
+      - recipient_address
+      - amount_base_units
+    Transfer:
+      type: object
+      properties:
+        id: *id001
+        status:
+          type: string
+          enum:
+          - draft
+          - prepared
+          - awaiting_signature
+          - signed
+          - broadcast
+          - confirming
+          - confirmed
+          - failed
+          - reorged
+          - cancelled
+        steps:
+          type: array
+          items:
+            type: object
+            properties:
+              kind:
+                type: string
+              txid:
+                type: string
+              confirmations:
+                type: integer
+    SigningStep:
+      type: object
+      properties:
+        step_id: *id001
+        step_index:
+          type: integer
+        kind:
+          type: string
+        wallet_payload:
+          type: object
+          properties:
+            provider_format:
+              type: string
+            data:
+              type: string
+        expires_at:
+          type: string
+          format: date-time
+    SignedStep:
+      type: object
+      properties:
+        step_id: *id001
+        signed_payload:
+          type: string
+      required:
+      - step_id
+      - signed_payload
+    Problem:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        code:
+          type: string
