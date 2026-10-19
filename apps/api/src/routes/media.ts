@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import type { Readable } from 'node:stream';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { Media, UploadTicket } from '@zoko/contracts';
 import type { AppDeps } from '../context.js';
@@ -61,8 +62,8 @@ export default async function mediaRoutes(app: FastifyInstance, deps: AppDeps) {
     const row = await one(
       db,
       `INSERT INTO media (owner_id, object_key, kind, mime_type, byte_size, storage_driver, upload_expires_at)
-       VALUES ($1, $1 || '/' || gen_random_uuid(), $2, $3, $4, $5, $6) RETURNING id, object_key`,
-      [me.id, body.kind, body.mime_type, body.byte_size, storage.driver, expiresAt],
+       VALUES ($1, $7, $2, $3, $4, $5, $6) RETURNING id, object_key`,
+      [me.id, body.kind, body.mime_type, body.byte_size, storage.driver, expiresAt, `${me.id}/${randomUUID()}`],
     );
     const target = storage.createUploadTarget({
       mediaId: row.id,

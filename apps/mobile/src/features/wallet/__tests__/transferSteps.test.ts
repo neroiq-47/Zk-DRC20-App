@@ -101,6 +101,12 @@ describe('helpers', () => {
     expect(nextAction('awaiting_signature')).toBe('sign');
     expect(nextAction('signed')).toBe('broadcast');
     expect(nextAction('confirming')).toBe('none');
+    const steps = [
+      { id: 'a', step_index: 0, kind: 'inscription' as const, status: 'broadcast' as const, txid: 'ab', confirmations: 0 },
+      { id: 'b', step_index: 1, kind: 'transfer' as const, status: 'draft' as const, txid: null, confirmations: 0 },
+    ];
+    expect(nextAction('broadcast', steps)).toBe('prepare');
+    expect(currentStepKey({ status: 'broadcast', steps, network_fee_koinu: '1' })).toBe('prepare');
   });
 
   it('confirmation progress uses latest broadcast step', () => {

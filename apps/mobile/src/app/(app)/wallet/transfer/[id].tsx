@@ -11,7 +11,7 @@ import { formatDoge, formatUnits } from '@/features/wallet/amount';
 import { ConfirmationBar, CopyButton, InfoRow, MonoValue, Notice, PendingProgress, Stepper } from '@/features/wallet/components';
 import { canCancel, confirmationProgress, currentStepKey, nextAction, statusHeadline, transferStepStates, type StepView } from '@/features/wallet/transferSteps';
 import { isBuilderUnavailable, transferErrorMessage } from '@/features/wallet/problems';
-import { ApiError } from '@/lib/api';
+import { api, ApiError } from '@/lib/api';
 
 function useSecondsLeft(expiresAt: string | undefined): number | null {
   const [now, setNow] = useState(Date.now());
@@ -158,7 +158,7 @@ function SuccessNotice({ transfer: tr }: { transfer: Transfer }) {
 function StepDetail({ step, transfer: tr }: { step: StepView; transfer: Transfer }) {
   const active = step.key === currentStepKey(tr) && (step.state === 'current' || step.state === 'failed');
   if (!active) return null;
-  const action = nextAction(tr.status);
+  const action = nextAction(tr.status, tr.steps);
   if (step.key === 'prepare' && action === 'prepare') return <PrepareAction transfer={tr} />;
   if (step.key === 'sign' && action === 'sign') return <SignAction transfer={tr} />;
   if (step.key === 'broadcast' && action === 'broadcast') return <BroadcastAction transfer={tr} />;
@@ -178,7 +178,11 @@ function PrepareAction({ transfer: tr }: { transfer: Transfer }) {
   const prepare = usePrepareTransfer(tr.id);
   return (
     <View style={{ gap: 8 }}>
-      <Text variant="small" color="textSecondary">Zoko builds an unsigned transaction and estimates the network fee. Nothing is sent yet.</Text>
+      <Text variant="small" color="textSecondary">
+        {tr.steps.some((s) => s.txid)
+          ? 'The first transaction was sent. Prepare the next one to finish the transfer.'
+          : 'Zoko builds an unsigned transaction and estimates the network fee. Nothing is sent yet.'}
+      </Text>
       <ActionError error={prepare.error} />
       <Button title="Prepare transaction" onPress={() => prepare.mutate()} loading={prepare.isPending} />
     </View>
@@ -260,6 +264,7 @@ function SignAction({ transfer: tr }: { transfer: Transfer }) {
             error={hexError}
             style={{ fontFamily: 'JetBrainsMono_400Regular', fontSize: 13 }}
           />
+          {__DEV__ ? <DevSimulatedSign data={signing.wallet_payload.data} onSigned={setSigned} /> : null}
           <ActionError error={submit.error} />
           <Button
             title="Submit signature"
@@ -270,6 +275,30 @@ function SignAction({ transfer: tr }: { transfer: Transfer }) {
         </>
       )}
     </View>
+  );
+}
+
+// Development builds only: the API's simulated chain accepts payloads signed by its dev endpoint.
+function DevSimulatedSign({ data, onSigned }: { data: string; onSigned: (hex: string) => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <Button
+      title="Sign with dev simulator"
+      variant="ghost"
+      size="sm"
+      loading={busy}
+      onPress={async () => {
+        setBusy(true);
+        try {
+          const res = await api<{ signed_payload: string }>('/dev/sign-simulated', { method: 'POST', body: { data } });
+          onSigned(res.signed_payload);
+        } catch {
+          // The server refuses this outside development; nothing to do.
+        } finally {
+          setBusy(false);
+        }
+      }}
+    />
   );
 }
 

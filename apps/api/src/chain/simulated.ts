@@ -34,7 +34,8 @@ export class SimulatedChain implements ChainSource {
     baseHeight = 5_000_000,
   ) {
     this.state = this.load() ?? { blocks: [], baseHeight, mempool: [], salt: 0 };
-    if (!this.state.blocks.length) this.mine(1);
+    // Start with some history so the sync job can begin a few blocks below the tip.
+    if (!this.state.blocks.length) this.mine(20);
   }
 
   private load(): SimState | null {

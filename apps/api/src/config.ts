@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -5,6 +6,10 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 /** apps/api directory (works from src/ under tsx and from dist/ after build). */
 export const API_ROOT = path.resolve(here, '..');
 export const REPO_ROOT = path.resolve(API_ROOT, '..', '..');
+
+// Load apps/api/.env when present (real environment variables take precedence). Skipped under vitest.
+const envFile = path.join(API_ROOT, '.env');
+if (!process.env.VITEST && fs.existsSync(envFile)) process.loadEnvFile(envFile);
 
 function str(name: string, fallback: string): string {
   const v = process.env[name];
@@ -60,6 +65,7 @@ export interface Config {
   assetStaleSeconds: number;
   devEndpoints: boolean;
   logLevel: string;
+  trustProxy: boolean;
 }
 
 export function loadConfig(overrides: Partial<Config> = {}): Config {
@@ -105,6 +111,7 @@ export function loadConfig(overrides: Partial<Config> = {}): Config {
     assetStaleSeconds: int('ASSET_STALE_SECONDS', 60),
     devEndpoints: bool('DEV_ENDPOINTS', !isProduction),
     logLevel: str('LOG_LEVEL', env === 'test' ? 'silent' : 'info'),
+    trustProxy: bool('TRUST_PROXY', false),
     ...overrides,
   };
   validateConfig(cfg);

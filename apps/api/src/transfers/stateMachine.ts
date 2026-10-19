@@ -7,9 +7,10 @@ import type { TransferStatus } from '@zoko/contracts';
  */
 export const TRANSITIONS: Record<TransferStatus, readonly TransferStatus[]> = {
   draft: ['prepared', 'cancelled', 'failed'],
-  prepared: ['awaiting_signature', 'cancelled', 'failed'],
-  awaiting_signature: ['signed', 'prepared', 'cancelled', 'failed'],
-  signed: ['broadcast', 'prepared', 'cancelled', 'failed'],
+  // 'reorged' from the mid-flow states covers an earlier step (the inscription) being orphaned.
+  prepared: ['awaiting_signature', 'cancelled', 'failed', 'reorged'],
+  awaiting_signature: ['signed', 'prepared', 'cancelled', 'failed', 'reorged'],
+  signed: ['broadcast', 'prepared', 'cancelled', 'failed', 'reorged'],
   broadcast: ['prepared', 'confirming', 'failed', 'reorged'],
   confirming: ['confirmed', 'reorged', 'failed'],
   // A reorged tx may be mined again on the new canonical chain.

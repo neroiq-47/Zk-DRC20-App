@@ -33,8 +33,14 @@ export function canCancel(status: TransferStatus): boolean {
   return CANCELLABLE.includes(status);
 }
 
+/** Multi-transaction transfers (DRC-20 inscription, then transfer) need another signing round after the first broadcast. */
+export function hasUnpreparedStep(steps: TransferStep[] | undefined): boolean {
+  return (steps ?? []).some((s) => !s.txid && s.status === 'draft');
+}
+
 /** The step the transfer is working on (or stopped at). */
 export function currentStepKey(t: Pick<Transfer, 'status' | 'steps' | 'network_fee_koinu'>): StepKey {
+  if ((t.status === 'broadcast' || t.status === 'confirming') && hasUnpreparedStep(t.steps)) return 'prepare';
   switch (t.status) {
     case 'draft':
       return 'prepare';
@@ -96,7 +102,8 @@ export function confirmationProgress(t: Pick<Transfer, 'steps' | 'required_confi
 
 /** What the user can do next from the transfer screen. */
 export type NextAction = 'prepare' | 'sign' | 'broadcast' | 'none';
-export function nextAction(status: TransferStatus): NextAction {
+export function nextAction(status: TransferStatus, steps?: TransferStep[]): NextAction {
+  if ((status === 'broadcast' || status === 'confirming') && hasUnpreparedStep(steps)) return 'prepare';
   switch (status) {
     case 'draft':
       return 'prepare';
