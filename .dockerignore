@@ -1,0 +1,5 @@
+**/node_modules
+apps/mobile
+**/dist
+apps/api/storage
+.git
